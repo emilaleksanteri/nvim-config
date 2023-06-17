@@ -137,6 +137,9 @@ require('lazy').setup({
       vim.cmd.colorscheme 'onedark'
     end,
   },
+  {'nvim-lua/plenary.nvim'},
+  {'ThePrimeagen/harpoon'},
+  {'mbbill/undotree'},
 
   {
     -- Set lualine as statusline
@@ -162,6 +165,7 @@ require('lazy').setup({
       show_trailing_blankline_indent = false,
     },
   },
+  { 'rose-pine/neovim', name = 'rose-pine' },
 
   -- "gc" to comment visual regions/lines
   { 'numToStr/Comment.nvim', opts = {} },
@@ -181,15 +185,92 @@ require('lazy').setup({
       return vim.fn.executable 'make' == 1
     end,
   },
+  {'nvim-treesitter/playground'},
 
   {
-    -- Highlight, edit, and navigate code
-    'nvim-treesitter/nvim-treesitter',
-    dependencies = {
-      'nvim-treesitter/nvim-treesitter-textobjects',
+  "nvim-treesitter/nvim-treesitter",
+  version = false, -- last release is way too old and doesn't work on Windows
+  build = ":TSUpdate",
+  event = { "BufReadPost", "BufNewFile" },
+  dependencies = {
+    {
+      "nvim-treesitter/nvim-treesitter-textobjects",
+      init = function()
+        -- PERF: no need to load the plugin, if we only need its queries for mini.ai
+        local plugin = require("lazy.core.config").spec.plugins["nvim-treesitter"]
+        local opts = require("lazy.core.plugin").values(plugin, "opts", false)
+        local enabled = false
+        if opts.textobjects then
+          for _, mod in ipairs({ "move", "select", "swap", "lsp_interop" }) do
+            if opts.textobjects[mod] and opts.textobjects[mod].enable then
+              enabled = true
+              break
+            end
+          end
+        end
+        if not enabled then
+          require("lazy.core.loader").disable_rtp_plugin("nvim-treesitter-textobjects")
+        end
+      end,
     },
-    build = ':TSUpdate',
   },
+  keys = {
+    { "<c-space>", desc = "Increment selection" },
+    { "<bs>", desc = "Decrement selection", mode = "x" },
+  },
+  ---@type TSConfig
+  opts = {
+    highlight = { enable = true },
+    indent = { enable = true },
+    ensure_installed = {
+      "bash",
+      "c",
+      "html",
+      "javascript",
+      "json",
+      "lua",
+      "luadoc",
+      "luap",
+      "markdown",
+      "markdown_inline",
+      "python",
+      "query",
+      "regex",
+      "tsx",
+      "rust",
+      "typescript",
+      "vim",
+      "vimdoc",
+      "yaml",
+      "svelte",
+      "go",
+    },
+    incremental_selection = {
+      enable = true,
+      keymaps = {
+        init_selection = "<C-space>",
+        node_incremental = "<C-space>",
+        scope_incremental = false,
+        node_decremental = "<bs>",
+      },
+    },
+  },
+  ---@param opts TSConfig
+  config = function(_, opts)
+    if type(opts.ensure_installed) == "table" then
+      ---@type table<string, boolean>
+      local added = {}
+      opts.ensure_installed = vim.tbl_filter(function(lang)
+        if added[lang] then
+          return false
+        end
+        added[lang] = true
+        return true
+      end, opts.ensure_installed)
+    end
+    require("nvim-treesitter.configs").setup(opts)
+  end,
+},
 
   -- NOTE: Next Step on Your Neovim Journey: Add/Configure additional "plugins" for kickstart
   --       These are some example plugins that I've included in the kickstart repository.
@@ -204,13 +285,13 @@ require('lazy').setup({
   --    For additional information see: https://github.com/folke/lazy.nvim#-structuring-your-plugins
   { import = 'custom.plugins' },
 }, {})
-
+vim.cmd('colorscheme rose-pine')
 -- [[ Setting options ]]
 -- See `:help vim.o`
 -- NOTE: You can change these options as you wish!
 
 -- Set highlight on search
-vim.o.hlsearch = false
+vim.o.hlsearch = true
 
 -- Make line numbers default
 vim.wo.number = true
