@@ -592,5 +592,10 @@ cmp.setup {
   },
 }
 
+vim.opt.guicursor = ""
+vim.opt.relativenumber = true
+vim.opt.scrolloff = 8
+vim.opt.nu = true
+
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
