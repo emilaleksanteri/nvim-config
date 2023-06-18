@@ -596,6 +596,9 @@ vim.opt.guicursor = ""
 vim.opt.relativenumber = true
 vim.opt.scrolloff = 8
 vim.opt.nu = true
+vim.api.nvim_set_hl(0, 'LineNrAbove', { fg='#706e86', bold=true })
+vim.api.nvim_set_hl(0, 'LineNr', { fg='#fcba03', bold=true })
+vim.api.nvim_set_hl(0, 'LineNrBelow', { fg='#706e86', bold=true })
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
