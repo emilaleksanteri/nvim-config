@@ -64,7 +64,6 @@ vim.opt.rtp:prepend(lazypath)
 --    as they will be available in your neovim runtime.
 require('lazy').setup({
   -- NOTE: First, some plugins that don't require any configuration
-
   -- Git related plugins
   'tpope/vim-fugitive',
   'tpope/vim-rhubarb',
@@ -79,7 +78,10 @@ require('lazy').setup({
     'neovim/nvim-lspconfig',
     dependencies = {
       -- Automatically install LSPs to stdpath for neovim
-      { 'williamboman/mason.nvim', config = true },
+      {
+        'williamboman/mason.nvim',
+        config = true,
+      },
       'williamboman/mason-lspconfig.nvim',
 
       -- Useful status updates for LSP
@@ -122,7 +124,8 @@ require('lazy').setup({
         changedelete = { text = '~' },
       },
       on_attach = function(bufnr)
-        vim.keymap.set('n', '<leader>gp', require('gitsigns').prev_hunk, { buffer = bufnr, desc = '[G]o to [P]revious Hunk' })
+        vim.keymap.set('n', '<leader>gp', require('gitsigns').prev_hunk,
+          { buffer = bufnr, desc = '[G]o to [P]revious Hunk' })
         vim.keymap.set('n', '<leader>gn', require('gitsigns').next_hunk, { buffer = bufnr, desc = '[G]o to [N]ext Hunk' })
         vim.keymap.set('n', '<leader>ph', require('gitsigns').preview_hunk, { buffer = bufnr, desc = '[P]review [H]unk' })
       end,
@@ -137,9 +140,9 @@ require('lazy').setup({
       vim.cmd.colorscheme 'onedark'
     end,
   },
-  {'nvim-lua/plenary.nvim'},
-  {'ThePrimeagen/harpoon'},
-  {'mbbill/undotree'},
+  { 'nvim-lua/plenary.nvim' },
+  { 'ThePrimeagen/harpoon' },
+  { 'mbbill/undotree' },
 
   {
     -- Set lualine as statusline
@@ -165,13 +168,14 @@ require('lazy').setup({
       show_trailing_blankline_indent = false,
     },
   },
-  { 'rose-pine/neovim', name = 'rose-pine' },
+  { 'rose-pine/neovim',               name = 'rose-pine' },
+  { 'jose-elias-alvarez/null-ls.nvim' },
 
   -- "gc" to comment visual regions/lines
-  { 'numToStr/Comment.nvim', opts = {} },
+  { 'numToStr/Comment.nvim',          opts = {} },
 
   -- Fuzzy Finder (files, lsp, etc)
-  { 'nvim-telescope/telescope.nvim', branch = '0.1.x', dependencies = { 'nvim-lua/plenary.nvim' } },
+  { 'nvim-telescope/telescope.nvim',  branch = '0.1.x',  dependencies = { 'nvim-lua/plenary.nvim' } },
 
   -- Fuzzy Finder Algorithm which requires local dependencies to be built.
   -- Only load if `make` is available. Make sure you have the system
@@ -185,92 +189,91 @@ require('lazy').setup({
       return vim.fn.executable 'make' == 1
     end,
   },
-  {'nvim-treesitter/playground'},
-
+  { 'nvim-treesitter/playground' },
   {
-  "nvim-treesitter/nvim-treesitter",
-  version = false, -- last release is way too old and doesn't work on Windows
-  build = ":TSUpdate",
-  event = { "BufReadPost", "BufNewFile" },
-  dependencies = {
-    {
-      "nvim-treesitter/nvim-treesitter-textobjects",
-      init = function()
-        -- PERF: no need to load the plugin, if we only need its queries for mini.ai
-        local plugin = require("lazy.core.config").spec.plugins["nvim-treesitter"]
-        local opts = require("lazy.core.plugin").values(plugin, "opts", false)
-        local enabled = false
-        if opts.textobjects then
-          for _, mod in ipairs({ "move", "select", "swap", "lsp_interop" }) do
-            if opts.textobjects[mod] and opts.textobjects[mod].enable then
-              enabled = true
-              break
+    'nvim-treesitter/nvim-treesitter',
+    version = false, -- last release is way too old and doesn't work on Windows
+    build = ':TSUpdate',
+    event = { 'BufReadPost', 'BufNewFile' },
+    dependencies = {
+      {
+        'nvim-treesitter/nvim-treesitter-textobjects',
+        init = function()
+          -- PERF: no need to load the plugin, if we only need its queries for mini.ai
+          local plugin = require('lazy.core.config').spec.plugins['nvim-treesitter']
+          local opts = require('lazy.core.plugin').values(plugin, 'opts', false)
+          local enabled = false
+          if opts.textobjects then
+            for _, mod in ipairs { 'move', 'select', 'swap', 'lsp_interop' } do
+              if opts.textobjects[mod] and opts.textobjects[mod].enable then
+                enabled = true
+                break
+              end
             end
           end
-        end
-        if not enabled then
-          require("lazy.core.loader").disable_rtp_plugin("nvim-treesitter-textobjects")
-        end
-      end,
-    },
-  },
-  keys = {
-    { "<c-space>", desc = "Increment selection" },
-    { "<bs>", desc = "Decrement selection", mode = "x" },
-  },
-  ---@type TSConfig
-  opts = {
-    highlight = { enable = true },
-    indent = { enable = true },
-    ensure_installed = {
-      "bash",
-      "c",
-      "html",
-      "javascript",
-      "json",
-      "lua",
-      "luadoc",
-      "luap",
-      "markdown",
-      "markdown_inline",
-      "python",
-      "query",
-      "regex",
-      "tsx",
-      "rust",
-      "typescript",
-      "vim",
-      "vimdoc",
-      "yaml",
-      "svelte",
-      "go",
-    },
-    incremental_selection = {
-      enable = true,
-      keymaps = {
-        init_selection = "<C-space>",
-        node_incremental = "<C-space>",
-        scope_incremental = false,
-        node_decremental = "<bs>",
+          if not enabled then
+            require('lazy.core.loader').disable_rtp_plugin 'nvim-treesitter-textobjects'
+          end
+        end,
       },
     },
+    keys = {
+      { '<c-space>', desc = 'Increment selection' },
+      { '<bs>',      desc = 'Decrement selection', mode = 'x' },
+    },
+    ---@type TSConfig
+    opts = {
+      highlight = { enable = true },
+      indent = { enable = true },
+      ensure_installed = {
+        'bash',
+        'c',
+        'html',
+        'javascript',
+        'json',
+        'lua',
+        'luadoc',
+        'luap',
+        'markdown',
+        'markdown_inline',
+        'python',
+        'query',
+        'regex',
+        'tsx',
+        'rust',
+        'typescript',
+        'vim',
+        'vimdoc',
+        'yaml',
+        'svelte',
+        'go',
+      },
+      incremental_selection = {
+        enable = true,
+        keymaps = {
+          init_selection = '<C-space>',
+          node_incremental = '<C-space>',
+          scope_incremental = false,
+          node_decremental = '<bs>',
+        },
+      },
+    },
+    ---@param opts TSConfig
+    config = function(_, opts)
+      if type(opts.ensure_installed) == 'table' then
+        ---@type table<string, boolean>
+        local added = {}
+        opts.ensure_installed = vim.tbl_filter(function(lang)
+          if added[lang] then
+            return false
+          end
+          added[lang] = true
+          return true
+        end, opts.ensure_installed)
+      end
+      require('nvim-treesitter.configs').setup(opts)
+    end,
   },
-  ---@param opts TSConfig
-  config = function(_, opts)
-    if type(opts.ensure_installed) == "table" then
-      ---@type table<string, boolean>
-      local added = {}
-      opts.ensure_installed = vim.tbl_filter(function(lang)
-        if added[lang] then
-          return false
-        end
-        added[lang] = true
-        return true
-      end, opts.ensure_installed)
-    end
-    require("nvim-treesitter.configs").setup(opts)
-  end,
-},
 
   -- NOTE: Next Step on Your Neovim Journey: Add/Configure additional "plugins" for kickstart
   --       These are some example plugins that I've included in the kickstart repository.
@@ -285,8 +288,8 @@ require('lazy').setup({
   --    For additional information see: https://github.com/folke/lazy.nvim#-structuring-your-plugins
   { import = 'custom.plugins' },
 }, {})
-vim.cmd('colorscheme rose-pine')
--- [[ Setting options ]]
+
+vim.cmd('colorscheme rose-pine') -- [[ Setting options ]]
 -- See `:help vim.o`
 -- NOTE: You can change these options as you wish!
 
@@ -592,13 +595,13 @@ cmp.setup {
   },
 }
 
-vim.opt.guicursor = ""
+vim.opt.guicursor = ''
 vim.opt.relativenumber = true
 vim.opt.scrolloff = 8
 vim.opt.nu = true
-vim.api.nvim_set_hl(0, 'LineNrAbove', { fg='#706e86', bold=true })
-vim.api.nvim_set_hl(0, 'LineNr', { fg='#fcba03', bold=true })
-vim.api.nvim_set_hl(0, 'LineNrBelow', { fg='#706e86', bold=true })
+vim.api.nvim_set_hl(0, 'LineNrAbove', { fg = '#706e86', bold = true })
+vim.api.nvim_set_hl(0, 'LineNr', { fg = '#fcba03', bold = true })
+vim.api.nvim_set_hl(0, 'LineNrBelow', { fg = '#706e86', bold = true })
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
