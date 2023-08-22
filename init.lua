@@ -91,6 +91,11 @@ require('lazy').setup({
       -- Additional lua configuration, makes nvim stuff amazing!
       'folke/neodev.nvim',
     },
+    spec = {
+      { "LazyVim/LazyVim", import = "lazyvim.plugins" },
+      { import = "lazyvim.plugins.extras.formatting.prettier" },
+      { import = "plugins" },
+    },
   },
 
   {
@@ -247,6 +252,8 @@ require('lazy').setup({
         'yaml',
         'svelte',
         'go',
+        'elixir',
+        'erlang',
       },
       incremental_selection = {
         enable = true,
@@ -288,6 +295,8 @@ require('lazy').setup({
   --    For additional information see: https://github.com/folke/lazy.nvim#-structuring-your-plugins
   { import = 'custom.plugins' },
 }, {})
+
+
 
 vim.cmd('colorscheme rose-pine') -- [[ Setting options ]]
 -- See `:help vim.o`
