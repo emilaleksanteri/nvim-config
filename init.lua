@@ -148,6 +148,7 @@ require('lazy').setup({
   { 'nvim-lua/plenary.nvim' },
   { 'ThePrimeagen/harpoon' },
   { 'mbbill/undotree' },
+  { 'github/copilot.vim'},
 
   {
     -- Set lualine as statusline
