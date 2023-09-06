@@ -92,7 +92,7 @@ require('lazy').setup({
       'folke/neodev.nvim',
     },
     spec = {
-      { "LazyVim/LazyVim", import = "lazyvim.plugins" },
+      { "LazyVim/LazyVim",                                    import = "lazyvim.plugins" },
       { import = "lazyvim.plugins.extras.formatting.prettier" },
       { import = "plugins" },
     },
@@ -148,7 +148,14 @@ require('lazy').setup({
   { 'nvim-lua/plenary.nvim' },
   { 'ThePrimeagen/harpoon' },
   { 'mbbill/undotree' },
-  { 'github/copilot.vim'},
+  { 'github/copilot.vim' },
+  {
+    "kdheepak/lazygit.nvim",
+    -- optional for floating window border decoration
+    dependencies = {
+      "nvim-lua/plenary.nvim",
+    },
+  },
 
   {
     -- Set lualine as statusline
