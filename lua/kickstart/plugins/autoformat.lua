@@ -56,16 +56,30 @@ return {
           group = get_augroup(client),
           buffer = bufnr,
           callback = function()
-            if not format_is_enabled then
-              return
-            end
+            if vim.bo.filetype == "templ" then
+              local filename = vim.api.nvim_buf_get_name(bufnr)
+              local cmd = "templ fmt " .. vim.fn.shellescape(filename)
 
-            vim.lsp.buf.format {
-              async = false,
-              filter = function(c)
-                return c.id == client.id
-              end,
-            }
+              vim.fn.jobstart(cmd, {
+                on_exit = function()
+                  -- Reload the buffer only if it's still the current buffer
+                  if vim.api.nvim_get_current_buf() == bufnr then
+                    vim.cmd('e!')
+                  end
+                end,
+              })
+            else
+              if not format_is_enabled then
+                return
+              end
+
+              vim.lsp.buf.format {
+                async = false,
+                filter = function(c)
+                  return c.id == client.id
+                end,
+              }
+            end
           end,
         })
       end,
