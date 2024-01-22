@@ -186,6 +186,7 @@ require('lazy').setup({
 
   -- "gc" to comment visual regions/lines
   { 'numToStr/Comment.nvim',          opts = {} },
+  { "vrischmann/tree-sitter-templ" },
 
   -- Fuzzy Finder (files, lsp, etc)
   { 'nvim-telescope/telescope.nvim',  branch = '0.1.x',  dependencies = { 'nvim-lua/plenary.nvim' } },
@@ -205,7 +206,6 @@ require('lazy').setup({
   { 'nvim-treesitter/playground' },
   {
     'nvim-treesitter/nvim-treesitter',
-    version = false, -- last release is way too old and doesn't work on Windows
     build = ':TSUpdate',
     event = { 'BufReadPost', 'BufNewFile' },
     dependencies = {
@@ -236,9 +236,11 @@ require('lazy').setup({
     },
     ---@type TSConfig
     opts = {
-      highlight = { enable = true },
-      indent = { enable = true },
-      ensure_installed = {
+      highlight             = { enable = true },
+      indent                = { enable = true },
+      auto_install          = true,
+      sync_install          = true,
+      ensure_installed      = {
         'bash',
         'c',
         'html',
@@ -256,12 +258,15 @@ require('lazy').setup({
         'rust',
         'typescript',
         'vim',
+        'templ',
         'vimdoc',
         'yaml',
         'svelte',
         'go',
         'elixir',
         'erlang',
+        'cmake',
+        'elixir',
       },
       incremental_selection = {
         enable = true,
@@ -273,6 +278,7 @@ require('lazy').setup({
         },
       },
     },
+
     ---@param opts TSConfig
     config = function(_, opts)
       if type(opts.ensure_installed) == 'table' then
@@ -303,7 +309,6 @@ require('lazy').setup({
   --    For additional information see: https://github.com/folke/lazy.nvim#-structuring-your-plugins
   { import = 'custom.plugins' },
 }, {})
-
 
 
 vim.cmd('colorscheme rose-pine') -- [[ Setting options ]]
@@ -468,6 +473,19 @@ require('nvim-treesitter.configs').setup {
     },
   },
 }
+local treesitter_parser_config = require "nvim-treesitter.parsers".get_parser_configs()
+treesitter_parser_config.templ = {
+  install_info = {
+    url = "https://github.com/vrischmann/tree-sitter-templ.git",
+    files = { "src/parser.c", "src/scanner.c" },
+    branch = "master",
+  },
+}
+vim.filetype.add({
+  extension = {
+    templ = "templ",
+  },
+})
 
 -- Diagnostic keymaps
 vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, { desc = 'Go to previous diagnostic message' })
@@ -530,14 +548,15 @@ local servers = {
   -- pyright = {},
   -- rust_analyzer = {},
   -- tsserver = {},
-
   lua_ls = {
     Lua = {
-      workspace = { checkThirdParty = false },
-      telemetry = { enable = false },
+      workspace = { checkThirdParty = true },
+      telemetry = { enable = true },
     },
   },
 }
+
+
 
 -- Setup neovim lua configuration
 require('neodev').setup()
@@ -562,6 +581,32 @@ mason_lspconfig.setup_handlers {
     }
   end,
 }
+
+
+local lspconfig = require("lspconfig")
+
+require('lspconfig.configs').templ = {
+  default_config = {
+    cmd = { "templ", "lsp" },
+    filetypes = { 'templ' },
+    root_dir = lspconfig.util.root_pattern("go.mod"),
+    settings = {},
+  },
+}
+
+lspconfig.templ.setup {
+  on_attach = on_attach,
+  capabilities = capabilities,
+  filetypes = { "templ" },
+}
+
+vim.cmd([[autocmd BufRead,BufNewFile *.templ setfiletype templ]])
+
+lspconfig.html.setup({
+  on_attach = on_attach,
+  capabilities = capabilities,
+  filetypes = { "html", "templ" },
+})
 
 -- [[ Configure nvim-cmp ]]
 -- See `:help cmp`
