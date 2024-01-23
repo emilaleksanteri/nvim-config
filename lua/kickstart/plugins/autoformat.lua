@@ -35,9 +35,10 @@ return {
       group = vim.api.nvim_create_augroup('kickstart-lsp-attach-format', { clear = true }),
       -- This is where we attach the autoformatting for reasonable clients
       callback = function(args)
+        local bufnr = args.buf
         local client_id = args.data.client_id
         local client = vim.lsp.get_client_by_id(client_id)
-        local bufnr = args.buf
+
 
         -- Only attach to clients that support document formatting
         if not client.server_capabilities.documentFormattingProvider then
@@ -68,18 +69,20 @@ return {
                   end
                 end,
               })
-            else
-              if not format_is_enabled then
-                return
-              end
 
-              vim.lsp.buf.format {
-                async = false,
-                filter = function(c)
-                  return c.id == client.id
-                end,
-              }
+              return
             end
+
+            if not format_is_enabled then
+              return
+            end
+
+            vim.lsp.buf.format {
+              async = false,
+              filter = function(c)
+                return c.id == client.id
+              end,
+            }
           end,
         })
       end,
