@@ -15,26 +15,26 @@ Kickstart.nvim is a template for your own configuration.
 
   If you don't know anything about Lua, I recommend taking some time to read through
   a guide. One possible example:
-  - https://learnxinyminutes.com/docs/lua/
+      - https://learnxinyminutes.com/docs/lua/
 
-  And then you can explore or search through `:help lua-guide`
+    And then you can explore or search through `:help lua-guide`
 
 
-Kickstart Guide:
+  Kickstart Guide:
 
-I have left several `:help X` comments throughout the init.lua
-You should run that command and read that help section for more information.
+  I have left several `:help X` comments throughout the init.lua
+  You should run that command and read that help section for more information.
 
-In addition, I have some `NOTE:` items throughout the file.
-These are for you, the reader to help understand what is happening. Feel free to delete
-them once you know what you're doing, but they should serve as a guide for when you
-are first encountering a few different constructs in your nvim config.
+  In addition, I have some `NOTE:` items throughout the file.
+  These are for you, the reader to help understand what is happening. Feel free to delete
+  them once you know what you're doing, but they should serve as a guide for when you
+  are first encountering a few different constructs in your nvim config.
 
-I hope you enjoy your Neovim journey,
-- TJ
+  I hope you enjoy your Neovim journey,
+  - TJ
 
-P.S. You can delete this when you're done too. It's your config now :)
---]]
+  P.S. You can delete this when you're done too. It's your config now :)
+  --]]
 -- Set <space> as the leader key
 -- See `:help mapleader`
 --  NOTE: Must happen before plugins are required (otherwise wrong leader will be used)
@@ -148,7 +148,7 @@ require('lazy').setup({
   { 'nvim-lua/plenary.nvim' },
   { 'ThePrimeagen/harpoon' },
   { 'mbbill/undotree' },
-  { 'github/copilot.vim' },
+  -- { 'github/copilot.vim' },
   {
     "kdheepak/lazygit.nvim",
     -- optional for floating window border decoration
@@ -175,10 +175,13 @@ require('lazy').setup({
     -- Add indentation guides even on blank lines
     'lukas-reineke/indent-blankline.nvim',
     -- Enable `lukas-reineke/indent-blankline.nvim`
-    -- See `:help indent_blankline.txt`
+    -- See `:help indent_blankline.txt`,
+    main = "ibl",
     opts = {
-      char = '┊',
-      show_trailing_blankline_indent = false,
+      indent = {
+        char = '┊',
+      },
+      whitespace = { highlight = { "Function", "Label" }, remove_blankline_trail = true, },
     },
   },
   { 'rose-pine/neovim',               name = 'rose-pine' },
@@ -187,9 +190,37 @@ require('lazy').setup({
   -- "gc" to comment visual regions/lines
   { 'numToStr/Comment.nvim',          opts = {} },
   { "vrischmann/tree-sitter-templ" },
-
+  {
+    "rcarriga/nvim-dap-ui",
+    -- stylua: ignore
+    keys = {
+      { "<leader>du", function() require("dapui").toggle({}) end, desc = "Dap UI" },
+      { "<leader>de", function() require("dapui").eval() end,     desc = "Eval",  mode = { "n", "v" } },
+    },
+    opts = {},
+    config = function(_, opts)
+      -- setup dap config by VsCode launch.json file
+      -- require("dap.ext.vscode").load_launchjs()
+      local dap = require("dap")
+      local dapui = require("dapui")
+      dapui.setup(opts)
+      dap.listeners.after.event_initialized["dapui_config"] = function()
+        dapui.open({})
+      end
+      dap.listeners.before.event_terminated["dapui_config"] = function()
+        dapui.close({})
+      end
+      dap.listeners.before.event_exited["dapui_config"] = function()
+        dapui.close({})
+      end
+    end,
+  },
+  {
+    "leoluz/nvim-dap-go",
+    config = true,
+  },
   -- Fuzzy Finder (files, lsp, etc)
-  { 'nvim-telescope/telescope.nvim',  branch = '0.1.x',  dependencies = { 'nvim-lua/plenary.nvim' } },
+  { 'nvim-telescope/telescope.nvim', branch = '0.1.x', dependencies = { 'nvim-lua/plenary.nvim' } },
 
   -- Fuzzy Finder Algorithm which requires local dependencies to be built.
   -- Only load if `make` is available. Make sure you have the system
@@ -601,11 +632,13 @@ lspconfig.tailwindcss.setup({
   init_options = { userLanguages = { templ = "html" } },
 })
 
-lspconfig.templ.setup {
-  on_attach = on_attach,
-  capabilities = capabilities,
-  filetypes = { "templ" },
-}
+if lspconfig.templ ~= nil and lspconfig.templ.setup ~= nil then
+  lspconfig.templ.setup {
+    on_attach = on_attach,
+    capabilities = capabilities,
+    filetypes = { "templ" },
+  }
+end
 
 vim.cmd([[autocmd BufRead,BufNewFile *.templ setfiletype templ]])
 
